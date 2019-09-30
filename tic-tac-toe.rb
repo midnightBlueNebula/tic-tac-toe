@@ -7,20 +7,10 @@ class TicTacToe
 
         @board = []
         @taken = []
+        @options = []
 
 
-        count_row = 1
-        count_col = 1
-        while count_row < 4
-            row = []
-            while count_col < 4
-                row.push(count_row.to_s,count_col.to_s)
-                count_col += 1
-            end
-            @board.push(row)
-            count_col = 1
-            count_row += 1
-        end
+        start_board
 
         print_board
         
@@ -43,88 +33,179 @@ class TicTacToe
     private
 
     def game_on
-        while @game_status && @place_left > 0
+        while @game_status == true
             if @player_1_starts
                 puts "Waiting Player 1 input: (#{@player_1})"
                 @input_1 = gets.chomp
-                if @taken.include?(@input_1)
-                    while @taken.include?(@input_1)
-                        puts "Place taken please try again: (#{@player_1})"
+                if @taken.include?(@input_1) || @options.include?(@input_1) == false
+                    while @taken.include?(@input_1) || @options.include?(@input_1) == false
+                        puts "Place is not available please try again: (#{@player_1})"
                         @input_1 = gets.chomp
                     end
                 end
                 inputting(@player_1,@input_1)
                 @taken.push(@input_1)
                 @place_left -= 1
+                
+                if check_if_won == true
+                    @game_status = false
+                    next
+                elsif @place_left == 0
+                    puts "Draw"
+                    @game_status = false
+                    next
+                end
+                
                 puts "Waiting Player 2 input: (#{@player_2})"
                 @input_2 = gets.chomp
-                if @taken.include?(@input_2)
-                    while @taken.include?(@input_2)
-                        puts "Place taken please try again: (#{@player_2})"
+                if @taken.include?(@input_2) || @options.include?(@input_2) == false
+                    while @taken.include?(@input_2) || @options.include?(@input_2) == false
+                        puts "Place is not available please try again: (#{@player_2})"
                         @input_2 = gets.chomp
                     end
                 end
                 inputting(@player_2,@input_2)
                 @taken.push(@input_2)
                 @place_left -= 1
+
+                if check_if_won == true
+                    @game_status = false
+                    next
+                elsif @place_left == 0
+                    puts "Draw"
+                    @game_status = false
+                    next
+                end
             else
                 puts "Waiting Player 2 input: (#{@player_2})"
                 @input_2 = gets.chomp
-                if @taken.include?(@input_2)
-                    while @taken.include?(@input_2)
-                        puts "Place taken please try again: (#{@player_2})"
+                if @taken.include?(@input_2) || @options.include?(@input_2) == false
+                    while @taken.include?(@input_2) || @options.include?(@input_2) == false
+                        puts "Place is not available please try again: (#{@player_2})"
                         @input_2 = gets.chomp
                     end
                 end
                 inputting(@player_2,@input_2)
                 @taken.push(@input_2)
                 @place_left -= 1
+                
+                if check_if_won == true
+                    @game_status = false
+                    next
+                elsif @place_left == 0
+                    puts "Draw"
+                    @game_status = false
+                    next
+                end
+                
                 puts "Waiting Player 1 input: (#{@player_1})"
                 @input_1 = gets.chomp
-                if @taken.include?(@input_1)
-                    while @taken.include?(@input_1)
-                        puts "Place taken please try again: (#{@player_1})"
+                if @taken.include?(@input_1) || @options.include?(@input_1) == false
+                    while @taken.include?(@input_1) || @options.include?(@input_1) == false
+                        puts "Place is not available please try again: (#{@player_1})"
                         @input_1 = gets.chomp
                     end
                 end
                 inputting(@player_1,@input_1)
                 @taken.push(@input_1)
                 @place_left -= 1
-            end
-        end
 
-        if @game_status
-            puts "Draw"
+                if check_if_won == true
+                    @game_status = false
+                    next
+                elsif @place_left == 0
+                    puts "Draw"
+                    @game_status = false
+                    next
+                end
+            end
         end
     end
 
     def inputting(player,place)
         choice = place.split("")
-        if choice[1].to_i == 1
-            row_m = choice[0].to_i - 1
-            col_m = choice[1].to_i - 1
-        elsif choice[1].to_i == 3
-            row_m = choice[0].to_i - 1
-            col_m = choice[1].to_i + 1
-        else
-            row_m = choice[0].to_i - 1
-            col_m = choice[1].to_i
-        end
-        @board[row_m][col_m] = ""
-        @board[row_m][col_m+1] = player + " "
+        row_m = choice[0].to_i - 1
+        col_m = choice[1].to_i - 1
+        @board[row_m][col_m] = player
         print "\n" * 3
         print_board
     end
 
+    def start_board
+        count_row = 1
+        count_col = 1
+        while count_row < 4
+            row = []
+            while count_col < 4
+                row.push(count_row.to_s + count_col.to_s)
+                @options.push(count_row.to_s + count_col.to_s)
+                count_col += 1
+            end
+            @board.push(row)
+            count_col = 1
+            count_row += 1
+        end
+    end
+
     def print_board
         @board.each do |i|
-            iter = 0
             i.each do |j|
                 print j
-                iter += 1
-                print iter%2 == 0 ? "\t" : ""
+                print "\t"
             end
             print "\n" * 3
+        end
+    end
+    
+    def check_if_won
+        @board.each do |i|
+            if i.all? { |s| s == "X" }
+                who_won("X")
+                return true
+            elsif i.all? { |s| s == "O" }
+                who_won("O")
+                return true
+            end
+        end
+
+        col_c = 0
+        row_c = 0
+        while col_c < 3
+            col_store = []
+            while row_c < 3
+                col_store.push(@board[row_c][col_c])
+                row_c += 1
+            end
+            if col_store.all? { |s| s == "X" } && col_store.length == 3
+                who_won("X")
+                return true
+            elsif col_store.all? { |s| s == "O" } && col_store.length == 3
+                who_won("O")
+                return true
+            end
+            col_c += 1
+        end
+
+        if @board[0][0]=="X" && @board[1][1]=="X" && @board[2][2]=="X"
+            who_won("X")
+            return true
+        elsif @board[0][2]=="O" && @board[1][1]=="O" && @board[2][0]=="O"
+            who_won("O")
+            return true
+        elsif @board[0][2]=="X" && @board[1][1]=="X" && @board[2][0]=="X"
+            who_won("X")
+            return true
+        elsif @board[0][0]=="O" && @board[1][1]=="O" && @board[2][2]=="O"
+            who_won("O")
+            return true
+        end
+    end
+
+    def who_won(stone)
+        if stone == @player_1
+            puts "Player 1 has won!"
+        else
+            puts "Game goes to Player 2!"
         end
     end
 
